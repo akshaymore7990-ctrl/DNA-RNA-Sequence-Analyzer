@@ -3,21 +3,22 @@
     let input = document.getElementById('sequence').value.trim();
     if (!input) return alert("Please enter a DNA sequence.");
 
-    // Remove FASTA header lines starting with '>'
-    let lines = input.split('\n').filter(line => !line.trim().startsWith('>'));
-    let raw = lines.join('').toUpperCase().replace(/[^A-Z]/g, '');
+    // 1. Properly strip out FASTA header lines (lines starting with '>')
+    let lines = input.split('\n');
+    let sequenceLines = lines.filter(line => !line.trim().startsWith('>'));
+    let raw = sequenceLines.join('').toUpperCase().replace(/\s+/g, '');
 
-    if (!raw) return alert("No valid sequence data found.");
-
-    // Extract core ATCG nucleotides plus IUPAC degenerate codes
+    // 2. Filter out non-IUPAC nucleotide characters
     const validDna = raw.replace(/[^ATCGRYSWKMBDHVN]/g, '');
+    if (!validDna) return alert("No valid sequence data found.");
+
     const len = validDna.length;
 
-    // Calculate GC content (counting G, C, and S which represents G or C)
+    // 3. Accurate GC Content (counts G, C, and IUPAC degenerate 'S' for Strong G/C)
     const gcCount = (validDna.match(/[GCS]/g) || []).length;
-    const gc = len > 0 ? ((gcCount / len) * 100).toFixed(2) : "0.00";
+    const gc = ((gcCount / len) * 100).toFixed(2);
 
-    // Standard + IUPAC Degenerate Complement Map
+    // 4. Complement Mapping
     const compMap = {
       'A':'T', 'T':'A', 'C':'G', 'G':'C',
       'R':'Y', 'Y':'R', 'S':'S', 'W':'W',
@@ -27,7 +28,7 @@
 
     const comp = validDna.split('').map(b => compMap[b] || 'N').join('');
 
-    // Update UI
+    // Update UI elements
     document.getElementById('len').innerText = len;
     document.getElementById('gc').innerText = gc;
     document.getElementById('comp').innerText = comp;
