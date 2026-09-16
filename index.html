@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biotech Sequence Toolkit</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; max-width: 800px; }
+    textarea { width: 100%; height: 100px; font-family: monospace; }
+    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
+    .results { margin-top: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🧬 Biotech Sequence Toolkit</h1>
+  <p>Analyze DNA/RNA sequences directly in your browser.</p>
+
+  <label for="sequence"><strong>Enter DNA Sequence (FASTA or raw text):</strong></label>
+  <textarea id="sequence" placeholder="ATGCGATCGATCGATCG..."></textarea>
+  
+  <button onclick="analyzeSequence()">Analyze Sequence</button>
+
+  <div class="results" id="output" style="display:none;">
+    <h3>Analysis Results</h3>
+    <p><strong>Length:</strong> <span id="len">0</span> bp</p>
+    <p><strong>GC Content:</strong> <span id="gc">0</span>%</p>
+    <p><strong>Complementary Strand:</strong></p>
+    <code id="comp"></code>
+  </div>
+
+  <script>
+    function analyzeSequence() {
+      const raw = document.getElementById('sequence').value.toUpperCase().replace(/[^ATCG]/g, '');
+      if (!raw) return alert("Please enter a valid DNA sequence containing A, T, C, or G.");
+      
+      const len = raw.length;
+      const gcCount = (raw.match(/[GC]/g) || []).length;
+      const gc = ((gcCount / len) * 100).toFixed(2);
+      
+      const compMap = {'A':'T', 'T':'A', 'C':'G', 'G':'C'};
+      const comp = raw.split('').map(b => compMap[b] || b).join('');
+
+      document.getElementById('len').innerText = len;
+      document.getElementById('gc').innerText = gc;
+      document.getElementById('comp').innerText = comp;
+      document.getElementById('output').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
