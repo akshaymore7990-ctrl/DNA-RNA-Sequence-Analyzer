@@ -22,4 +22,4 @@ A lightweight web utility for essential bioinformatics calculations, including s
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR-USERNAME/biotech-sequence-toolkit.git](https://github.com/YOUR-USERNAME/biotech-sequence-toolkit.git)
+  git clone https://github.com/akshaymore7990-ctrl/DNA-RNA-Sequence-Analyzer.git
