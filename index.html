@@ -1,50 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biotech Sequence Toolkit</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; max-width: 800px; }
-    textarea { width: 100%; height: 100px; font-family: monospace; }
-    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
-    .results { margin-top: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px; }
-  </style>
-</head>
-<body>
-  <h1>🧬 Biotech Sequence Toolkit</h1>
-  <p>Analyze DNA/RNA sequences directly in your browser.</p>
+<script>
+  function analyzeSequence() {
+    let input = document.getElementById('sequence').value.trim();
+    if (!input) return alert("Please enter a DNA sequence.");
 
-  <label for="sequence"><strong>Enter DNA Sequence (FASTA or raw text):</strong></label>
-  <textarea id="sequence" placeholder="ATGCGATCGATCGATCG..."></textarea>
-  
-  <button onclick="analyzeSequence()">Analyze Sequence</button>
+    // Remove FASTA header lines starting with '>'
+    let lines = input.split('\n').filter(line => !line.trim().startsWith('>'));
+    let raw = lines.join('').toUpperCase().replace(/[^A-Z]/g, '');
 
-  <div class="results" id="output" style="display:none;">
-    <h3>Analysis Results</h3>
-    <p><strong>Length:</strong> <span id="len">0</span> bp</p>
-    <p><strong>GC Content:</strong> <span id="gc">0</span>%</p>
-    <p><strong>Complementary Strand:</strong></p>
-    <code id="comp"></code>
-  </div>
+    if (!raw) return alert("No valid sequence data found.");
 
-  <script>
-    function analyzeSequence() {
-      const raw = document.getElementById('sequence').value.toUpperCase().replace(/[^ATCG]/g, '');
-      if (!raw) return alert("Please enter a valid DNA sequence containing A, T, C, or G.");
-      
-      const len = raw.length;
-      const gcCount = (raw.match(/[GC]/g) || []).length;
-      const gc = ((gcCount / len) * 100).toFixed(2);
-      
-      const compMap = {'A':'T', 'T':'A', 'C':'G', 'G':'C'};
-      const comp = raw.split('').map(b => compMap[b] || b).join('');
+    // Extract core ATCG nucleotides plus IUPAC degenerate codes
+    const validDna = raw.replace(/[^ATCGRYSWKMBDHVN]/g, '');
+    const len = validDna.length;
 
-      document.getElementById('len').innerText = len;
-      document.getElementById('gc').innerText = gc;
-      document.getElementById('comp').innerText = comp;
-      document.getElementById('output').style.display = 'block';
-    }
-  </script>
-</body>
-</html>
+    // Calculate GC content (counting G, C, and S which represents G or C)
+    const gcCount = (validDna.match(/[GCS]/g) || []).length;
+    const gc = len > 0 ? ((gcCount / len) * 100).toFixed(2) : "0.00";
+
+    // Standard + IUPAC Degenerate Complement Map
+    const compMap = {
+      'A':'T', 'T':'A', 'C':'G', 'G':'C',
+      'R':'Y', 'Y':'R', 'S':'S', 'W':'W',
+      'K':'M', 'M':'K', 'B':'V', 'V':'B',
+      'D':'H', 'H':'D', 'N':'N'
+    };
+
+    const comp = validDna.split('').map(b => compMap[b] || 'N').join('');
+
+    // Update UI
+    document.getElementById('len').innerText = len;
+    document.getElementById('gc').innerText = gc;
+    document.getElementById('comp').innerText = comp;
+    document.getElementById('output').style.display = 'block';
+  }
+</script>
